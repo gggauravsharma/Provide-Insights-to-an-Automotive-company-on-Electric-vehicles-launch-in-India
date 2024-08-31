@@ -139,12 +139,8 @@ order by sales;
 
 
 
---What is the projected number of EV sales (including 2-wheelers and 4-wheelers) 
---for the top 10 states by penetration rate in 2030, based on the 
+--What is the projected number of EV sales (including 2-wheelers and 4-wheelers) for the top 10 states by penetration rate in 2030, based on the 
 --compounded annual growth rate (CAGR) from previous years
-
-select * from electric_vehicle_sales_by_state;
-
 
 with cte as(
 select state,vehicle_category,electric_vehicles_sold,total_vehicles_sold,
