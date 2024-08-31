@@ -1,4 +1,4 @@
-Problem Statement
+#Problem Statement
 
                                                                                         
 AtliQ Motors is an automotive giant from the USA specializing in electric vehicles (EV). In the last 5 years, their market share rose to 25% in electric and hybrid vehicles segment
@@ -6,7 +6,7 @@ in North America. As a part of their expansion plans, they wanted to launch thei
 of AtliQ Motors India wanted to do a detailed market study of existing EV/Hybrid market in India before proceeding further. Bruce gave this task to the data analytics team of 
 AtliQ motors and Peter Pandey is the data analyst working in this team.
 
-Task:
+#Task:
 
 Imagine yourself as Peter Pandey and perform the following tasks.
 1. Begin your analysis by referring to the ‘primary_and_secondary_questions.pdf’. You can use any tool of your choice 
@@ -16,7 +16,7 @@ Imagine yourself as Peter Pandey and perform the following tasks.
 4. Be creative with your presentation, audio/video presentation will have more weightage. You will be presenting these insights to the chief Bruce Haryali –
    he appreciates good storytelling and concise presentation.
    
-Other resources Provided:
+#Resources Provided:
 
 Dataset required to answer preliminary analysis questions.
 Metadata
