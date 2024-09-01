@@ -31,12 +31,30 @@ order by Penetration_Rate desc;
 
 --List the states with negative penetration (decline) in EV sales from 2022 to 2024?
 
+with cte1 as(
 select state,SUM(electric_vehicles_sold) as electric_vehicles_sold ,SUM(total_vehicles_sold) as total_vehicles_sold,
-cast(round(SUM(electric_vehicles_sold)*100.0/SUM(total_vehicles_sold),2)as float) as Penetration_Rate
-from electric_vehicle_sales_by_state
-where YEAR(date) between 2022 and 2024 
-group by state
-order by Penetration_Rate,electric_vehicles_sold;
+cast(round(SUM(electric_vehicles_sold)*100.0/SUM(total_vehicles_sold),2)as float) as Penetration_Rate_2022
+from dim_date d join electric_vehicle_sales_by_state e
+on d.date = e.date
+where d.fiscal_year= 2022
+group by state),
+cte2 as(
+select state,SUM(electric_vehicles_sold) as electric_vehicles_sold ,SUM(total_vehicles_sold) as total_vehicles_sold,
+cast(round(SUM(electric_vehicles_sold)*100.0/SUM(total_vehicles_sold),2)as float) as Penetration_Rate_2023
+from dim_date d join electric_vehicle_sales_by_state e on d.date = e.date
+where d.fiscal_year= 2023
+group by state),
+cte3 as(
+select state,SUM(electric_vehicles_sold) as electric_vehicles_sold ,SUM(total_vehicles_sold) as total_vehicles_sold,
+cast(round(SUM(electric_vehicles_sold)*100.0/SUM(total_vehicles_sold),2)as float) as Penetration_Rate_2024
+from dim_date d join electric_vehicle_sales_by_state e on d.date = e.date
+where d.fiscal_year= 2024
+group by state)
+select top 10 cte1.state,cte1.Penetration_Rate_2022,cte2.Penetration_Rate_2023-cte1.Penetration_Rate_2022 as trend_2023,
+cte2.Penetration_Rate_2023,cte3.Penetration_Rate_2024-cte2.Penetration_Rate_2023 as trend_2024,cte3.Penetration_Rate_2024
+from cte1 join cte2 on cte1.state = cte2.state
+join cte3 on cte2.state = cte3.state
+order by trend_2024,trend_2023
 
 
 --What are the quarterly trends based on sales volume for the top 5 EV makers (4-wheelers) from 2022 to 2024
