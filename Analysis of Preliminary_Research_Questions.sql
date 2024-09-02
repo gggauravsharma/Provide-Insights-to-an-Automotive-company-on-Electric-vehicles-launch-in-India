@@ -17,7 +17,7 @@ select *, RANK() over(partition by fiscal_year order by electric_vehicles_sales)
 from cte)
 select *
 from cte1
-where rnk <=3
+where rnk <=3;
 
 --bottom 3
 with cte as(
@@ -37,7 +37,7 @@ select *, RANK() over(partition by fiscal_year order by electric_vehicles_sales 
 from cte)
 select *
 from cte1
-where rnk <=3
+where rnk <=3;
 
 
 
@@ -73,8 +73,9 @@ cast(round(SUM(electric_vehicles_sold)*100.0/SUM(total_vehicles_sold),2)as float
 from dim_date d join electric_vehicle_sales_by_state e on d.date = e.date
 where d.fiscal_year= 2024
 group by state)
-select top 10 cte1.state,cte1.Penetration_Rate_2022,cte2.Penetration_Rate_2023-cte1.Penetration_Rate_2022 as trend_2023,
-cte2.Penetration_Rate_2023,cte3.Penetration_Rate_2024-cte2.Penetration_Rate_2023 as trend_2024,cte3.Penetration_Rate_2024
+select top 10 cte1.state,cte1.Penetration_Rate_2022,cte2.Penetration_Rate_2023,cte3.Penetration_Rate_2024,
+cte2.Penetration_Rate_2023-cte1.Penetration_Rate_2022 as trend_2023
+,cte3.Penetration_Rate_2024-cte2.Penetration_Rate_2023 as trend_2024
 from cte1 join cte2 on cte1.state = cte2.state
 join cte3 on cte2.state = cte3.state
 order by trend_2024,trend_2023
@@ -158,7 +159,7 @@ where d.fiscal_year between 2022 and 2024)
 select state,MIN(running_sales) as Beginning_Value, MAX(running_sales) as Ending_Value
 from cte
 group by state)
-select top 10 state,cast(round((power((cast(Ending_Value as decimal)/Beginning_Value),0.33))-1,2)as float) as CAGR
+select top 10 state,cast(round((power((cast(Ending_Value as decimal)/Beginning_Value),0.33))-1,3)as float) as CAGR
 from cte1
 order by CAGR desc;
 
@@ -219,55 +220,45 @@ order by growth_by_2030 desc;
 
 
 --Revenue growth rate of 4-wheeler and 2-wheelers EVs in India for 2022 vs 2024
-with sales_2022 as(
-select year(s.date) as yearss,vehicle_category,quarter,
+with cte_2022 as(
+select year(s.date) as years,vehicle_category,quarter,
 case when vehicle_category = '2-Wheelers' then SUM(cast(electric_vehicles_sold as bigint) * 85000) 
      when vehicle_category = '4-Wheelers' then SUM(cast(electric_vehicles_sold as bigint) * 1500000) end as sales
 from electric_vehicle_sales_by_state s join dim_date d
-on year(s.date) = year(d.date)
+on s.date = d.date
 where d.fiscal_year = 2022
 group by year(s.date),vehicle_category,quarter),
-sales_2024 as(
-select year(s.date) as yearss,vehicle_category,quarter,
+cte_2024 as(
+select year(s.date) as years,vehicle_category,quarter,
 case when vehicle_category = '2-Wheelers' then SUM(cast(electric_vehicles_sold as bigint) * 85000) 
      when vehicle_category = '4-Wheelers' then SUM(cast(electric_vehicles_sold as bigint) * 1500000) end as sales
 from electric_vehicle_sales_by_state s join dim_date d
-on year(s.date) = year(d.date)
+on s.date = d.date
 where d.fiscal_year = 2024
 group by year(s.date),vehicle_category,quarter)
-select sales_2022.yearss,sales_2022.quarter,sales_2022.vehicle_category,sales_2022.sales,
-	   sales_2024.yearss,sales_2024.vehicle_category,sales_2024.sales,
-	   cast(round(cast(sales_2022.sales as decimal)*100/sales_2024.sales,2)as float) as revenue_growth
-from sales_2022 join sales_2024 
-on sales_2022.vehicle_category = sales_2024.vehicle_category
-group by sales_2022.yearss,sales_2022.quarter,sales_2022.vehicle_category,sales_2022.sales,
-	   sales_2024.yearss,sales_2024.vehicle_category,sales_2024.sales
-order by sales_2022.yearss,sales_2024.yearss,sales_2022.quarter;
-
+select *,cast(round(cast(cte_2022.sales as decimal)*100/cte_2024.sales,2)as float) as revenue_growth
+from cte_2022 join cte_2024
+on cte_2022.vehicle_category = cte_2024.vehicle_category and cte_2022.quarter = cte_2024.quarter
+order by cte_2022.years,cte_2022.vehicle_category,cte_2022.quarter;
 
 --Revenue growth rate of 4-wheeler and 2-wheelers EVs in India for 2023 vs 2024
-with sales_2023 as(
-select year(s.date) as yearss,vehicle_category,quarter,
+with cte_2023 as(
+select year(s.date) as years,vehicle_category,quarter,
 case when vehicle_category = '2-Wheelers' then SUM(cast(electric_vehicles_sold as bigint) * 85000) 
      when vehicle_category = '4-Wheelers' then SUM(cast(electric_vehicles_sold as bigint) * 1500000) end as sales
 from electric_vehicle_sales_by_state s join dim_date d
-on year(s.date) = year(d.date)
+on s.date = d.date
 where d.fiscal_year = 2023
 group by year(s.date),vehicle_category,quarter),
-sales_2024 as(
-select year(s.date) as yearss,vehicle_category,quarter,
+cte_2024 as(
+select year(s.date) as years,vehicle_category,quarter,
 case when vehicle_category = '2-Wheelers' then SUM(cast(electric_vehicles_sold as bigint) * 85000) 
      when vehicle_category = '4-Wheelers' then SUM(cast(electric_vehicles_sold as bigint) * 1500000) end as sales
 from electric_vehicle_sales_by_state s join dim_date d
-on year(s.date) = year(d.date)
+on s.date = d.date
 where d.fiscal_year = 2024
 group by year(s.date),vehicle_category,quarter)
-select sales_2023.yearss,sales_2023.quarter,sales_2023.vehicle_category,sales_2023.sales,
-	   sales_2024.yearss,sales_2024.vehicle_category,sales_2024.sales,
-	   cast(round(cast(sales_2023.sales as decimal)*100/sales_2024.sales,2)as float) as revenue_growth
-from sales_2023 join sales_2024 
-on sales_2023.vehicle_category = sales_2024.vehicle_category
-group by sales_2023.yearss,sales_2023.quarter,sales_2023.vehicle_category,sales_2023.sales,
-	   sales_2024.yearss,sales_2024.vehicle_category,sales_2024.sales
-order by sales_2023.yearss,sales_2024.yearss,sales_2023.quarter;
-
+select *,cast(round(cast(cte_2023.sales as decimal)*100/cte_2024.sales,2)as float) as revenue_growth
+from cte_2023 join cte_2024
+on cte_2023.vehicle_category = cte_2024.vehicle_category and cte_2023.quarter = cte_2024.quarter
+order by cte_2023.years,cte_2023.vehicle_category,cte_2023.quarter;
