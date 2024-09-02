@@ -1,15 +1,3 @@
-use Atliq_motors;
-
-
-select * from dim_date;
-select * from electric_vehicle_sales_by_makers;
-select * from electric_vehicle_sales_by_state;
-
-update electric_vehicle_sales_by_state
-set state = 'Andaman & Nicobar Island'
-where state = 'Andaman & Nicobar';
-
-
 --List the top 3 and bottom 3 makers for the fiscal years 2023 and 2024 in terms of the number of 2-wheelers sold.
 --top 3
 with cte as(
